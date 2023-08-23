@@ -1,75 +1,74 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { useForm } from "react-hook-form";
+import type { FieldValues } from "react-hook-form";
 
 const FormWithoutReactHookFormAndZod = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errors, setErrors] = useState<string[]>([]);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    reset,
+    getValues,
+  } = useForm();
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setIsSubmitting(true);
+  const onSubmit = async (data: FieldValues) => {
+    console.log(data);
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
-    if (password !== confirmPassword) {
-      setErrors(["Password & Confirm Password must match!"]);
-      setIsSubmitting(false);
-      return;
-    }
-
-    console.log("Form submitted");
-
-    setErrors([]);
-    setEmail("");
-    setPassword("");
-    setConfirmPassword("");
-    setIsSubmitting(false);
+    reset();
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-y-2">
+    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-y-2">
       <h1 className="text-3xl mb-8 max-w-xs">
-        Form React without React hook form
+        Form React with React hook form
       </h1>
 
-      {errors.length > 0 && (
-        <ul className="max-w-xs">
-          {errors.map((error) => (
-            <li
-              key={error}
-              className="bg-red-100 text-red-500 px-4 py-2 rounded"
-            >
-              {error}
-            </li>
-          ))}
-        </ul>
-      )}
-
       <input
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
+        {...register("email", {
+          required: "Email is required",
+        })}
         type="email"
         placeholder="Email"
         className="px-4 py-2 rounded"
       />
 
+      {errors.email && (
+        <p className="text-sm text-red-500">{`${errors.email.message}`}</p>
+      )}
+
       <input
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
+        {...register("password", {
+          required: "Password is required",
+          minLength: {
+            value: 5,
+            message: "Password must be at least 5 characters",
+          },
+        })}
         type="password"
         placeholder="Password"
         className="px-4 py-2 rounded"
       />
 
+      {errors.password && (
+        <p className="text-sm text-red-500">{`${errors.password.message}`}</p>
+      )}
+
       <input
-        value={confirmPassword}
-        onChange={(e) => setConfirmPassword(e.target.value)}
+        {...register("confirmPassword", {
+          required: "Confirm Password is required",
+          validate: (value) =>
+            value === getValues("password") || "Passwords must match!",
+        })}
         type="password"
         placeholder="Confirm Password"
         className="px-4 py-2 rounded"
       />
+
+      {errors.confirmPassword && (
+        <p className="text-sm text-red-500">{`${errors.confirmPassword.message}`}</p>
+      )}
 
       <button
         type="submit"
