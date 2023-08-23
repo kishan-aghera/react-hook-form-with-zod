@@ -1,9 +1,9 @@
-import FormWithoutReactHookFormAndZod from "@/components/FormWithoutReactHookFormAndZod";
+import FormWithReactHookForm from "@/components/FormWithReactHookForm";
 
 export default function Home() {
   return (
     <div id="root">
-      <FormWithoutReactHookFormAndZod />
+      <FormWithReactHookForm />
     </div>
   )
 }
